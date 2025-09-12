@@ -1,0 +1,61 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider             = "prisma-client-py"
+    recursive_type_depth = 5
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+    id             String   @id @default(cuid())
+    email          String   @unique
+    hashedPassword String   @map("hashed_password")
+    firstName      String?  @map("first_name")
+    lastName       String?  @map("last_name")
+    isActive       Boolean  @default(true) @map("is_active")
+    createdAt      DateTime @default(now()) @map("created_at")
+    updatedAt      DateTime @updatedAt @map("updated_at")
+
+    // Relations
+    conversations Conversation[]
+    messages      Message[]
+
+    @@map("users")
+}
+
+// Conversation model for chat sessions
+model Conversation {
+    id        String   @id @default(cuid())
+    title     String?
+    userId    String   @map("user_id")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    // Relations
+    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    messages Message[]
+
+    @@map("conversations")
+}
+
+// Message model for individual chat messages
+model Message {
+    id             String   @id @default(cuid())
+    content        String
+    role           String // 'user', 'assistant', 'system'
+    conversationId String   @map("conversation_id")
+    userId         String   @map("user_id")
+    createdAt      DateTime @default(now()) @map("created_at")
+
+    // Relations
+    conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("messages")
+}
