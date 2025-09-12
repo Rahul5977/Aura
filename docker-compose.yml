@@ -9,8 +9,8 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5433/aura_db
-  
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/aura_db
+
   db:
     image: postgres:15
     restart: always
@@ -19,7 +19,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: aura_db
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:
